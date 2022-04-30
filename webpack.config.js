@@ -13,10 +13,42 @@ module.exports = {
     // webpack will next take the entry point we have provided, bundle that code, and output that bundled code to a folder that we specify
     // The final piece of our basic setup will provide the mode in which we want webpack to run. By default, webpack wants to run in production mode
     // We're going to use the providePlugin plugin to define the $ and jQuery variables to use the installed npm jquery package. If we did not do this, the code would still not work even though we installed jQuery
-    entry: './assets/js/script.js',
-    output: {
+    entry: { // each file name will be the name of the entry point we provide
+        app: "./assets/js/script.js",
+        events: "./assets/js/events.js",
+        schedule: "./assets/js/schedule.js",
+        tickets: "./assets/js/tickets.js"
+    },
+    output: { // each output file will have it's own bundle
+        filename: "[name].bundle.js", 
         path: path.resolve(__dirname, 'dist'),
-        filename: 'main.bundle.js',
+    },
+    module: {
+        // This object will identify the type of files to pre-process using the test property to find a regex
+        rules: [
+          {
+            test: /\.jpg$/i, 
+            use: [
+                {
+                    loader: 'file-loader',
+                    options: { 
+                        // options object that contains a name function, which returns the name of the file with the file extension
+                        esModule: false,
+                        name (file) {
+                            return "[path][name].[ext]"
+                        },
+                        // publicPath property, which is also a function that changes our assignment URL by replacing the ../ from our require() statement with /assets/ --> so creates assets folder
+                        publicPath: function(url) {
+                            return url.replace("../", "/assets/")
+                        }
+                    }
+                },
+                {
+                  loader: 'image-webpack-loader'
+                }
+            ]
+          }
+        ]
     },
     plugins: [
         new webpack.ProvidePlugin({
